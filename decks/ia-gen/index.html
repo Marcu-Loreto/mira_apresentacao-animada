@@ -1,0 +1,1459 @@
+<!doctype html>
+<html lang="pt-BR" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IA Generativa: Conceitos Práticos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" />
+    <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* @MIRA:THEME:START */
+      :root {
+        --mira-primary: #ff904d;
+        --mira-bg: #000000;
+        --mira-text: #ffffff;
+        --mira-text-soft: rgba(255, 255, 255, 0.7);
+        --mira-text-softer: rgba(255, 255, 255, 0.5);
+        --mira-card-bg: rgba(255, 255, 255, 0.05);
+        --mira-card-border: rgba(255, 255, 255, 0.1);
+        --mira-glow-soft: rgba(255, 144, 77, 0.15);
+        --mira-glow-strong: rgba(255, 144, 77, 0.25);
+        --mira-icon-bg: rgba(255, 144, 77, 0.15);
+        --mira-icon-border: rgba(255, 144, 77, 0.3);
+        --mira-pill-bg: rgba(255, 255, 255, 0.04);
+        --mira-pill-border: rgba(255, 255, 255, 0.08);
+        --mira-stage-glow: rgba(255, 144, 77, 0.06);
+        --mira-accent-2: #ffc766;
+      }
+      /* @MIRA:THEME:END */
+
+      /* @MIRA:SIZE:3/10 */
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        background: var(--mira-bg);
+        color: var(--mira-text);
+        overflow: hidden;
+        height: 100vh;
+        width: 100vw;
+      }
+      .primary-color {
+        color: var(--mira-primary);
+      }
+      .text-soft {
+        color: var(--mira-text-soft);
+      }
+      .text-softer {
+        color: var(--mira-text-softer);
+      }
+
+      .glass-card {
+        background: var(--mira-card-bg);
+        border: 1px solid var(--mira-card-border);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 1.5rem;
+        padding: 2.5rem;
+      }
+      .icon-hero {
+        width: 56px;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--mira-icon-bg);
+        border: 1px solid var(--mira-icon-border);
+        border-radius: 1rem;
+        margin-bottom: 1.5rem;
+      }
+      .icon-hero svg {
+        width: 28px;
+        height: 28px;
+        color: var(--mira-primary);
+      }
+      .attribute-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: var(--mira-pill-bg);
+        border: 1px solid var(--mira-pill-border);
+        border-radius: 9999px;
+        font-size: 0.8rem;
+        color: var(--mira-text-soft);
+      }
+      .anim-stage {
+        width: 100%;
+        height: 220px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        background: var(--mira-stage-glow);
+        border-radius: 1rem;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+      }
+      .replay-btn {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--mira-pill-bg);
+        border: 1px solid var(--mira-pill-border);
+        border-radius: 0.5rem;
+        cursor: pointer;
+        opacity: 0.5;
+        transition: opacity 0.3s;
+      }
+      .replay-btn:hover {
+        opacity: 1;
+      }
+      .replay-btn svg {
+        width: 14px;
+        height: 14px;
+        color: var(--mira-text-soft);
+      }
+
+      section {
+        width: 100vw;
+        height: 100vh;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+      section.active {
+        display: flex;
+      }
+
+      #mira-progress {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 3px;
+        background: var(--mira-primary);
+        transition: width 0.4s ease;
+        z-index: 9999;
+      }
+      #mira-next {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: var(--mira-glow-soft);
+        border: 1px solid var(--mira-icon-border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 9998;
+        transition: all 0.3s;
+      }
+      #mira-next:hover {
+        background: var(--mira-glow-strong);
+        transform: scale(1.1);
+      }
+      #mira-next svg {
+        width: 20px;
+        height: 20px;
+        color: var(--mira-primary);
+      }
+
+      @keyframes mira-pulse {
+        0%,
+        100% {
+          opacity: 0.6;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.05);
+        }
+      }
+      @keyframes mira-float {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-8px);
+        }
+      }
+      @keyframes mira-glow-breathe {
+        0%,
+        100% {
+          box-shadow: 0 0 20px var(--mira-glow-soft);
+        }
+        50% {
+          box-shadow: 0 0 40px var(--mira-glow-strong);
+        }
+      }
+      .slide-counter {
+        position: fixed;
+        bottom: 2rem;
+        left: 2rem;
+        font-size: 0.75rem;
+        color: var(--mira-text-softer);
+        z-index: 9998;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="mira-progress" style="width: 0%"></div>
+    <button id="mira-next"><i data-lucide="chevron-right"></i></button>
+    <div class="slide-counter">
+      <span id="current-slide">1</span> / <span id="total-slides">14</span>
+    </div>
+  </body>
+</html>
+
+<!-- SLIDE 1: CAPA -->
+<section id="slide-1" class="active">
+  <div class="max-w-4xl w-full text-center" data-aos="fade-up">
+    <div class="anim-stage mx-auto" id="capa-stage" style="height: 280px"></div>
+    <span class="attribute-pill mb-4 inline-block">Capacitação Técnica</span>
+    <h1
+      class="text-4xl md:text-5xl font-bold mt-4 mb-3"
+      style="color: var(--mira-text)"
+    >
+      IA Generativa: <span class="primary-color">Conceitos Práticos</span>
+    </h1>
+    <p class="text-lg text-soft">Do Transformer aos Agentes</p>
+  </div>
+</section>
+
+<!-- SLIDE 2: FLUXO TIMELINE -->
+<section id="slide-2">
+  <div class="max-w-5xl w-full" data-aos="fade-up">
+    <div class="glass-card">
+      <div class="icon-hero"><i data-lucide="clock"></i></div>
+      <h2 class="text-2xl font-bold mb-1" style="color: var(--mira-text)">
+        2017 a 2025+
+      </h2>
+      <p class="text-soft text-sm mb-4">
+        Cada geração adicionou uma capacidade
+      </p>
+      <div class="anim-stage" id="fluxo-timeline-stage"></div>
+      <div class="flex flex-wrap gap-2">
+        <span class="attribute-pill">US$71 bi</span>
+        <span class="attribute-pill">CAGR 43%</span>
+        <span class="attribute-pill">70% Enterprise RAG</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 3: COMPARAÇÃO LLM -->
+<section id="slide-3">
+  <div class="max-w-5xl w-full" data-aos="fade-up">
+    <div class="glass-card">
+      <h2 class="text-2xl font-bold mb-1" style="color: var(--mira-text)">
+        O Que É um LLM
+      </h2>
+      <p class="text-soft text-sm mb-4">
+        Motor de linguagem, não base de conhecimento
+      </p>
+      <div class="anim-stage" id="versus-llm-stage" style="height: 200px"></div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div class="glass-card !p-4" id="versus-llm-a">
+          <div class="flex items-center gap-2 mb-2">
+            <i
+              data-lucide="sparkles"
+              class="primary-color"
+              style="width: 20px; height: 20px"
+            ></i
+            ><span
+              class="font-semibold text-sm"
+              style="color: var(--mira-primary)"
+              >O Que Faz</span
+            >
+          </div>
+          <ul class="text-soft text-xs space-y-1">
+            <li>• Gera texto coerente</li>
+            <li>• Reconhece padrões</li>
+            <li>• Segue instruções</li>
+          </ul>
+        </div>
+        <div class="glass-card !p-4" id="versus-llm-b">
+          <div class="flex items-center gap-2 mb-2">
+            <i
+              data-lucide="alert-triangle"
+              style="width: 20px; height: 20px; color: var(--mira-accent-2)"
+            ></i
+            ><span
+              class="font-semibold text-sm"
+              style="color: var(--mira-accent-2)"
+              >O Que NÃO Faz</span
+            >
+          </div>
+          <ul class="text-soft text-xs space-y-1">
+            <li>• Não acessa internet</li>
+            <li>• Não sabe dados internos</li>
+            <li>• Pode alucinar</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 4: MÉTRICAS TOKENS -->
+<section id="slide-4">
+  <div class="max-w-5xl w-full" data-aos="fade-up">
+    <div class="glass-card">
+      <h2 class="text-2xl font-bold mb-1" style="color: var(--mira-text)">
+        Tokens e Economia
+      </h2>
+      <p class="text-soft text-sm mb-4">A unidade econômica da IA</p>
+      <div class="anim-stage" id="metrics-tokens-stage"></div>
+      <div class="grid grid-cols-3 gap-4 mb-4">
+        <div class="text-center">
+          <div
+            class="text-3xl font-bold primary-color metrics-tokens-val"
+            data-target="128000"
+            data-display="128k"
+          >
+            0
+          </div>
+          <div class="text-xs text-soft">tokens</div>
+          <div class="text-xs text-softer">Janela GPT-4o</div>
+        </div>
+        <div class="text-center">
+          <div
+            class="text-3xl font-bold primary-color metrics-tokens-val"
+            data-target="2.50"
+            data-display="US$2.50"
+          >
+            0
+          </div>
+          <div class="text-xs text-soft">/1M in</div>
+          <div class="text-xs text-softer">Custo de entrada</div>
+        </div>
+        <div class="text-center">
+          <div
+            class="text-3xl font-bold primary-color metrics-tokens-val"
+            data-target="10"
+            data-display="10x"
+          >
+            0
+          </div>
+          <div class="text-xs text-soft">mais</div>
+          <div class="text-xs text-softer">Agentes vs pergunta simples</div>
+        </div>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <span class="attribute-pill">Roteamento de Modelos</span>
+        <span class="attribute-pill">Cache Semântico</span>
+        <span class="attribute-pill">Prompt Caching</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 5: ESCADA PROMPT -->
+<section id="slide-5">
+  <div class="max-w-5xl w-full" data-aos="fade-up">
+    <div class="glass-card">
+      <div class="icon-hero"><i data-lucide="pen-tool"></i></div>
+      <h2 class="text-2xl font-bold mb-1" style="color: var(--mira-text)">
+        Prompt Engineering
+      </h2>
+      <p class="text-soft text-sm mb-4">Técnicas de instrução do modelo</p>
+      <div
+        class="anim-stage"
+        id="escada-prompt-stage"
+        style="height: 240px"
+      ></div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 6: FLUXO RAG -->
+<section id="slide-6">
+  <div class="max-w-5xl w-full" data-aos="fade-up">
+    <div class="glass-card">
+      <div class="icon-hero"><i data-lucide="database"></i></div>
+      <h2 class="text-2xl font-bold mb-1" style="color: var(--mira-text)">
+        RAG: Pipeline Completo
+      </h2>
+      <p class="text-soft text-sm mb-4">Do documento à resposta fundamentada</p>
+      <div class="anim-stage" id="fluxo-rag-stage"></div>
+      <div class="flex flex-wrap gap-2">
+        <span class="attribute-pill">70% Enterprise</span>
+        <span class="attribute-pill">Reduz Alucinação</span>
+        <span class="attribute-pill">Rastreável</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 7: ORBITAL RAG -->
+<section id="slide-7">
+  <div class="max-w-5xl w-full" data-aos="fade-up">
+    <div class="glass-card">
+      <h2 class="text-2xl font-bold mb-1" style="color: var(--mira-text)">
+        RAG: Blocos de Implementação
+      </h2>
+      <p class="text-soft text-sm mb-4">Cada peça tem uma função na cadeia</p>
+      <div
+        class="anim-stage"
+        id="orbital-rag-stage"
+        style="height: 280px"
+      ></div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 8: ESCADA GUARDRAILS -->
+<section id="slide-8">
+  <div class="max-w-5xl w-full" data-aos="fade-up">
+    <div class="glass-card">
+      <div class="icon-hero"><i data-lucide="shield"></i></div>
+      <h2 class="text-2xl font-bold mb-1" style="color: var(--mira-text)">
+        Guardrails
+      </h2>
+      <p class="text-soft text-sm mb-4">Defesa em camadas contra riscos</p>
+      <div
+        class="anim-stage"
+        id="escada-guard-stage"
+        style="height: 240px"
+      ></div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 9: COMPARAÇÃO TOOLS -->
+<section id="slide-9">
+  <div class="max-w-5xl w-full" data-aos="fade-up">
+    <div class="glass-card">
+      <h2 class="text-2xl font-bold mb-1" style="color: var(--mira-text)">
+        Tools e Function Calling
+      </h2>
+      <p class="text-soft text-sm mb-4">Quando a IA deixa de conversar e age</p>
+      <div
+        class="anim-stage"
+        id="versus-tools-stage"
+        style="height: 200px"
+      ></div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div class="glass-card !p-4" id="versus-tools-a">
+          <div class="flex items-center gap-2 mb-2">
+            <i
+              data-lucide="message-square"
+              class="primary-color"
+              style="width: 20px; height: 20px"
+            ></i
+            ><span
+              class="font-semibold text-sm"
+              style="color: var(--mira-primary)"
+              >Conversa</span
+            >
+          </div>
+          <ul class="text-soft text-xs space-y-1">
+            <li>• Responde perguntas</li>
+            <li>• Gera texto</li>
+            <li>• Analisa conteúdo</li>
+          </ul>
+        </div>
+        <div class="glass-card !p-4" id="versus-tools-b">
+          <div class="flex items-center gap-2 mb-2">
+            <i
+              data-lucide="zap"
+              style="width: 20px; height: 20px; color: var(--mira-accent-2)"
+            ></i
+            ><span
+              class="font-semibold text-sm"
+              style="color: var(--mira-accent-2)"
+              >Ação</span
+            >
+          </div>
+          <ul class="text-soft text-xs space-y-1">
+            <li>• Consulta banco</li>
+            <li>• Chama API</li>
+            <li>• Envia email</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 10: ORBITAL HARNESS -->
+<section id="slide-10">
+  <div class="max-w-5xl w-full" data-aos="fade-up">
+    <div class="glass-card">
+      <h2 class="text-2xl font-bold mb-1" style="color: var(--mira-text)">
+        Harness: O Produto Completo
+      </h2>
+      <p class="text-soft text-sm mb-4">LLM é 20%, Harness é 80%</p>
+      <div
+        class="anim-stage"
+        id="orbital-harness-stage"
+        style="height: 280px"
+      ></div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 11: MÉTRICAS OBSERVABILIDADE -->
+<section id="slide-11">
+  <div class="max-w-5xl w-full" data-aos="fade-up">
+    <div class="glass-card">
+      <h2 class="text-2xl font-bold mb-1" style="color: var(--mira-text)">
+        Observabilidade
+      </h2>
+      <p class="text-soft text-sm mb-4">Sem ela, você opera cego</p>
+      <div class="anim-stage" id="metrics-obs-stage"></div>
+      <div class="grid grid-cols-3 gap-4 mb-4">
+        <div class="text-center">
+          <div
+            class="text-3xl font-bold primary-color metrics-obs-val"
+            data-target="73"
+            data-display="73%"
+          >
+            0
+          </div>
+          <div class="text-xs text-softer">Exigem monitoramento</div>
+        </div>
+        <div class="text-center">
+          <div
+            class="text-3xl font-bold primary-color metrics-obs-val"
+            data-target="63"
+            data-display="63%"
+          >
+            0
+          </div>
+          <div class="text-xs text-softer">Sem ferramental</div>
+        </div>
+        <div class="text-center">
+          <div
+            class="text-3xl font-bold primary-color metrics-obs-val"
+            data-target="4"
+            data-display="4"
+          >
+            0
+          </div>
+          <div class="text-xs text-soft">tools</div>
+          <div class="text-xs text-softer">
+            Langfuse, LangSmith, Arize, OTel
+          </div>
+        </div>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <span class="attribute-pill">Traces</span>
+        <span class="attribute-pill">Spans</span>
+        <span class="attribute-pill">Custo</span>
+        <span class="attribute-pill">Fidelidade</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 12: FLUXO REACT -->
+<section id="slide-12">
+  <div class="max-w-5xl w-full" data-aos="fade-up">
+    <div class="glass-card">
+      <div class="icon-hero"><i data-lucide="bot"></i></div>
+      <h2 class="text-2xl font-bold mb-1" style="color: var(--mira-text)">
+        Agentes e ReAct
+      </h2>
+      <p class="text-soft text-sm mb-4">
+        Observe, Think, Act em loop iterativo
+      </p>
+      <div class="anim-stage" id="fluxo-react-stage"></div>
+      <div class="flex flex-wrap gap-2">
+        <span class="attribute-pill">Chatbot</span>
+        <span class="attribute-pill">Assistente</span>
+        <span class="attribute-pill">Agente</span>
+        <span class="attribute-pill">Agentic</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 13: ESCADA MATURIDADE -->
+<section id="slide-13">
+  <div class="max-w-5xl w-full" data-aos="fade-up">
+    <div class="glass-card">
+      <div class="icon-hero"><i data-lucide="trending-up"></i></div>
+      <h2 class="text-2xl font-bold mb-1" style="color: var(--mira-text)">
+        Maturidade Organizacional
+      </h2>
+      <p class="text-soft text-sm mb-4">
+        De experimentação a autonomia controlada
+      </p>
+      <div
+        class="anim-stage"
+        id="escada-maturity-stage"
+        style="height: 240px"
+      ></div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 14: ENCERRAMENTO -->
+<section id="slide-14">
+  <div class="max-w-4xl w-full text-center" data-aos="fade-up">
+    <div
+      class="anim-stage mx-auto"
+      id="encerramento-stage"
+      style="height: 240px"
+    ></div>
+    <div class="icon-hero mx-auto"><i data-lucide="rocket"></i></div>
+    <h2
+      class="text-3xl md:text-4xl font-bold mb-3"
+      style="color: var(--mira-text)"
+    >
+      O Diferencial Está na <span class="primary-color">Engenharia</span>
+    </h2>
+    <p class="text-soft text-base mb-6">
+      O modelo é acessível a todos. A engenharia ao redor define quem entrega
+      valor.
+    </p>
+    <span
+      class="attribute-pill text-sm"
+      style="
+        border-color: var(--mira-icon-border);
+        background: var(--mira-glow-soft);
+      "
+      >🚀 Aplicar os Conceitos</span
+    >
+  </div>
+</section>
+
+    <script>
+    // ========== NAVIGATION ==========
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('section');
+    const totalSlides = slides.length;
+    document.getElementById('total-slides').textContent = totalSlides;
+
+    function goToSlide(n) {
+        if (n < 0 || n >= totalSlides) return;
+        slides[currentSlide].classList.remove('active');
+        currentSlide = n;
+        slides[currentSlide].classList.add('active');
+        document.getElementById('mira-progress').style.width = ((currentSlide + 1) / totalSlides * 100) + '%';
+        document.getElementById('current-slide').textContent = currentSlide + 1;
+        initSlideAnimation(currentSlide);
+    }
+
+    document.getElementById('mira-next').addEventListener('click', () => goToSlide(currentSlide + 1));
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') goToSlide(currentSlide + 1);
+        if (e.key === 'ArrowLeft') goToSlide(currentSlide - 1);
+    });
+
+    // ========== ANIMATION REGISTRY ==========
+    const animatedSlides = new Set();
+
+    function initSlideAnimation(idx) {
+        if (animatedSlides.has(idx)) return;
+        animatedSlides.add(idx);
+        switch(idx) {
+            case 0: animCapa(); break;
+            case 1: animFluxoTimeline(); break;
+            case 2: animVersusLLM(); break;
+            case 3: animMetricsTokens(); break;
+            case 4: animEscadaPrompt(); break;
+            case 5: animFluxoRAG(); break;
+            case 6: animOrbitalRAG(); break;
+            case 7: animEscadaGuard(); break;
+            case 8: animVersusTools(); break;
+            case 9: animOrbitalHarness(); break;
+            case 10: animMetricsObs(); break;
+            case 11: animFluxoReact(); break;
+            case 12: animEscadaMaturity(); break;
+            case 13: animEncerramento(); break;
+        }
+    }
+
+    // ========== SLIDE 1: CAPA — Particle orbit ==========
+    function animCapa() {
+        const stage = document.getElementById('capa-stage');
+        const w = stage.offsetWidth, h = stage.offsetHeight;
+        const svg = d3.select(stage).append('svg').attr('width', w).attr('height', h);
+        const cx = w/2, cy = h/2;
+        const primary = getComputedStyle(document.documentElement).getPropertyValue('--mira-primary').trim();
+        const accent2 = getComputedStyle(document.documentElement).getPropertyValue('--mira-accent-2').trim();
+
+        // Core glow
+        const defs = svg.append('defs');
+        const radGrad = defs.append('radialGradient').attr('id','capa-glow');
+        radGrad.append('stop').attr('offset','0%').attr('stop-color', primary).attr('stop-opacity',0.4);
+        radGrad.append('stop').attr('offset','100%').attr('stop-color', primary).attr('stop-opacity',0);
+
+        svg.append('circle').attr('cx',cx).attr('cy',cy).attr('r',50).attr('fill','url(#capa-glow)').attr('opacity',0);
+        svg.append('circle').attr('cx',cx).attr('cy',cy).attr('r',8).attr('fill',primary).attr('opacity',0);
+
+        // Particles
+        const particles = d3.range(24).map(i => ({
+            angle: (i / 24) * Math.PI * 2,
+            radius: 40 + Math.random() * 50,
+            size: 2 + Math.random() * 3,
+            speed: 0.005 + Math.random() * 0.01,
+            color: i % 3 === 0 ? accent2 : primary
+        }));
+
+        const dots = svg.selectAll('.capa-dot').data(particles).enter()
+            .append('circle').attr('class','capa-dot')
+            .attr('r', d => d.size).attr('fill', d => d.color).attr('opacity', 0);
+
+        // ENTRANCE choreography
+        svg.select('circle:nth-child(2)').transition().duration(800).attr('opacity',0.6);
+        svg.select('circle:nth-child(3)').transition().duration(600).delay(200).attr('opacity',1);
+        dots.transition().duration(600).delay((d,i) => 400 + i * 50).attr('opacity', 0.7);
+
+        // PERPETUAL LOOP
+        let time = 0;
+        function loop() {
+            time += 1;
+            dots.attr('cx', d => cx + Math.cos(d.angle + time * d.speed) * d.radius)
+                .attr('cy', d => cy + Math.sin(d.angle + time * d.speed) * d.radius)
+                .attr('opacity', d => 0.4 + 0.3 * Math.sin(time * d.speed * 2));
+            requestAnimationFrame(loop);
+        }
+        setTimeout(loop, 1200);
+    }
+
+    // ========== SLIDE 2: FLUXO TIMELINE — Particle traveling ==========
+    function animFluxoTimeline() {
+        const stage = document.getElementById('fluxo-timeline-stage');
+        const w = stage.offsetWidth, h = stage.offsetHeight;
+        const svg = d3.select(stage).append('svg').attr('width', w).attr('height', h);
+        const primary = getComputedStyle(document.documentElement).getPropertyValue('--mira-primary').trim();
+        const accent2 = getComputedStyle(document.documentElement).getPropertyValue('--mira-accent-2').trim();
+        const textSoft = 'rgba(255,255,255,0.7)';
+
+        const stages = ['Transformer','GPT','ChatGPT','Tools','Multimodal','Agentes'];
+        const years = ['2017','2018','2022','2023','2024','2025+'];
+        const padding = 60;
+        const gap = (w - padding * 2) / (stages.length - 1);
+
+        // Draw line
+        const line = svg.append('line')
+            .attr('x1', padding).attr('y1', h/2)
+            .attr('x2', padding).attr('y2', h/2)
+            .attr('stroke', primary).attr('stroke-width', 2).attr('opacity', 0.3);
+
+        // Nodes
+        const nodes = svg.selectAll('.tl-node').data(stages).enter().append('g')
+            .attr('transform', (d,i) => `translate(${padding + i * gap}, ${h/2})`).attr('opacity', 0);
+
+        nodes.append('circle').attr('r', 6).attr('fill', primary).attr('opacity', 0.8);
+        nodes.append('text').text(d => d).attr('y', -18).attr('text-anchor','middle')
+            .attr('fill', textSoft).attr('font-size','10px').attr('font-family','Inter');
+        nodes.append('text').text((d,i) => years[i]).attr('y', 24).attr('text-anchor','middle')
+            .attr('fill','rgba(255,255,255,0.4)').attr('font-size','9px').attr('font-family','Inter');
+
+        // Traveling particle
+        const traveler = svg.append('circle').attr('r', 4).attr('fill', accent2)
+            .attr('cx', padding).attr('cy', h/2).attr('opacity', 0);
+        const trail = svg.append('circle').attr('r', 12).attr('fill', accent2)
+            .attr('cx', padding).attr('cy', h/2).attr('opacity', 0);
+
+        // ENTRANCE
+        line.transition().duration(800).attr('x2', padding + (stages.length-1)*gap);
+        nodes.transition().duration(400).delay((d,i) => 800 + i*150).attr('opacity', 1);
+        traveler.transition().delay(1600).duration(300).attr('opacity', 1);
+        trail.transition().delay(1600).duration(300).attr('opacity', 0.15);
+
+        // PERPETUAL LOOP
+        function loopTravel() {
+            const totalDur = 4000;
+            traveler.attr('cx', padding)
+                .transition().duration(totalDur).ease(d3.easeLinear)
+                .attr('cx', padding + (stages.length-1)*gap)
+                .transition().duration(600).attr('opacity', 0.3)
+                .transition().duration(200).attr('cx', padding).attr('opacity', 1)
+                .on('end', loopTravel);
+            trail.attr('cx', padding)
+                .transition().duration(totalDur).ease(d3.easeLinear)
+                .attr('cx', padding + (stages.length-1)*gap)
+                .transition().duration(600).attr('opacity', 0)
+                .transition().duration(200).attr('cx', padding).attr('opacity', 0.15);
+        }
+        setTimeout(loopTravel, 2000);
+    }
+
+    // ========== SLIDE 3: VERSUS LLM — Spotlight alternating ==========
+    function animVersusLLM() {
+        const stage = document.getElementById('versus-llm-stage');
+        const w = stage.offsetWidth, h = stage.offsetHeight;
+        const svg = d3.select(stage).append('svg').attr('width', w).attr('height', h);
+        const primary = getComputedStyle(document.documentElement).getPropertyValue('--mira-primary').trim();
+        const accent2 = getComputedStyle(document.documentElement).getPropertyValue('--mira-accent-2').trim();
+
+        // Two spotlights
+        const spotA = svg.append('circle').attr('cx', w*0.3).attr('cy', h/2).attr('r', 40)
+            .attr('fill', primary).attr('opacity', 0);
+        const spotB = svg.append('circle').attr('cx', w*0.7).attr('cy', h/2).attr('r', 40)
+            .attr('fill', accent2).attr('opacity', 0);
+
+        // Labels
+        svg.append('text').text('✓').attr('x', w*0.3).attr('y', h/2+5)
+            .attr('text-anchor','middle').attr('fill','white').attr('font-size','24px').attr('opacity',0)
+            .attr('class','vs-check');
+        svg.append('text').text('✗').attr('x', w*0.7).attr('y', h/2+5)
+            .attr('text-anchor','middle').attr('fill','white').attr('font-size','24px').attr('opacity',0)
+            .attr('class','vs-cross');
+
+        // Rays
+        const raysA = d3.range(8).map(i => {
+            const angle = (i/8) * Math.PI * 2;
+            return svg.append('line')
+                .attr('x1', w*0.3).attr('y1', h/2)
+                .attr('x2', w*0.3 + Math.cos(angle)*60).attr('y2', h/2 + Math.sin(angle)*60)
+                .attr('stroke', primary).attr('stroke-width', 1).attr('opacity', 0);
+        });
+        const raysB = d3.range(8).map(i => {
+            const angle = (i/8) * Math.PI * 2;
+            return svg.append('line')
+                .attr('x1', w*0.7).attr('y1', h/2)
+                .attr('x2', w*0.7 + Math.cos(angle)*60).attr('y2', h/2 + Math.sin(angle)*60)
+                .attr('stroke', accent2).attr('stroke-width', 1).attr('opacity', 0);
+        });
+
+        // ENTRANCE
+        spotA.transition().duration(600).attr('opacity', 0.25);
+        spotB.transition().duration(600).delay(300).attr('opacity', 0.15);
+        svg.select('.vs-check').transition().duration(400).delay(600).attr('opacity',1);
+        svg.select('.vs-cross').transition().duration(400).delay(800).attr('opacity',1);
+
+        // PERPETUAL LOOP — alternating spotlight
+        function loopSpot() {
+            spotA.transition().duration(1200).attr('opacity', 0.35).attr('r', 50);
+            raysA.forEach(r => r.transition().duration(1200).attr('opacity', 0.3));
+            spotB.transition().duration(1200).attr('opacity', 0.08).attr('r', 35);
+            raysB.forEach(r => r.transition().duration(1200).attr('opacity', 0.05));
+
+            setTimeout(() => {
+                spotB.transition().duration(1200).attr('opacity', 0.3).attr('r', 50);
+                raysB.forEach(r => r.transition().duration(1200).attr('opacity', 0.25));
+                spotA.transition().duration(1200).attr('opacity', 0.1).attr('r', 35);
+                raysA.forEach(r => r.transition().duration(1200).attr('opacity', 0.05));
+                setTimeout(loopSpot, 1400);
+            }, 1400);
+        }
+        setTimeout(loopSpot, 1200);
+    }
+
+    // ========== SLIDE 4: METRICS TOKENS — Counter + rings ==========
+    function animMetricsTokens() {
+        const stage = document.getElementById('metrics-tokens-stage');
+        const w = stage.offsetWidth, h = stage.offsetHeight;
+        const svg = d3.select(stage).append('svg').attr('width', w).attr('height', h);
+        const primary = getComputedStyle(document.documentElement).getPropertyValue('--mira-primary').trim();
+
+        // Rotating rings
+        const cx = w/2, cy = h/2;
+        const rings = [50, 70, 90];
+        const ringEls = rings.map((r, i) => {
+            return svg.append('circle').attr('cx', cx).attr('cy', cy).attr('r', r)
+                .attr('fill','none').attr('stroke', primary)
+                .attr('stroke-width', 1).attr('stroke-dasharray', `${10+i*5} ${20+i*10}`)
+                .attr('opacity', 0);
+        });
+
+        // Center text
+        const centerText = svg.append('text').text('128k').attr('x', cx).attr('y', cy+6)
+            .attr('text-anchor','middle').attr('fill', primary).attr('font-size','20px')
+            .attr('font-weight','700').attr('font-family','Inter').attr('opacity',0);
+
+        // ENTRANCE
+        ringEls.forEach((r, i) => r.transition().duration(600).delay(i*200).attr('opacity', 0.3));
+        centerText.transition().duration(800).delay(600).attr('opacity', 1);
+
+        // Animate counter values
+        const vals = document.querySelectorAll('.metrics-tokens-val');
+        vals.forEach((el, i) => {
+            const display = el.dataset.display;
+            setTimeout(() => { el.textContent = display; }, 800 + i * 300);
+        });
+
+        // PERPETUAL LOOP — rotating rings
+        let angle = 0;
+        function loopRings() {
+            angle += 0.5;
+            ringEls.forEach((r, i) => {
+                const dir = i % 2 === 0 ? 1 : -1;
+                r.attr('transform', `rotate(${angle * dir * (0.5 + i*0.3)}, ${cx}, ${cy})`);
+            });
+            requestAnimationFrame(loopRings);
+        }
+        setTimeout(loopRings, 1000);
+    }
+
+    // ========== SLIDE 5: ESCADA PROMPT — Orb climbing ==========
+    function animEscadaPrompt() {
+        const stage = document.getElementById('escada-prompt-stage');
+        const w = stage.offsetWidth, h = stage.offsetHeight;
+        const svg = d3.select(stage).append('svg').attr('width', w).attr('height', h);
+        const primary = getComputedStyle(document.documentElement).getPropertyValue('--mira-primary').trim();
+        const accent2 = getComputedStyle(document.documentElement).getPropertyValue('--mira-accent-2').trim();
+        const textSoft = 'rgba(255,255,255,0.7)';
+
+        const steps = ['Zero-shot','Few-shot','Chain-of-Thought','Role Prompting','Structured Output'];
+        const stepW = (w - 80) / steps.length;
+        const baseY = h - 40;
+
+        // Draw stairs
+        steps.forEach((s, i) => {
+            const x = 40 + i * stepW;
+            const stepH = 30 + i * 30;
+            const y = baseY - stepH;
+
+            svg.append('rect').attr('x', x).attr('y', y).attr('width', stepW - 8).attr('height', stepH)
+                .attr('fill', primary).attr('opacity', 0).attr('rx', 4)
+                .transition().duration(400).delay(i * 150).attr('opacity', 0.1 + i * 0.04);
+
+            svg.append('text').text(s).attr('x', x + (stepW-8)/2).attr('y', y - 8)
+                .attr('text-anchor','middle').attr('fill', textSoft).attr('font-size','9px')
+                .attr('font-family','Inter').attr('opacity', 0)
+                .transition().duration(400).delay(i * 150 + 100).attr('opacity', 1);
+        });
+
+        // Climbing orb
+        const orb = svg.append('circle').attr('r', 7).attr('fill', accent2).attr('opacity', 0)
+            .attr('cx', 40 + stepW/2).attr('cy', baseY - 30 - 14);
+        const orbGlow = svg.append('circle').attr('r', 16).attr('fill', accent2).attr('opacity', 0)
+            .attr('cx', 40 + stepW/2).attr('cy', baseY - 30 - 14);
+
+        // ENTRANCE
+        orb.transition().delay(800).duration(400).attr('opacity', 1);
+        orbGlow.transition().delay(800).duration(400).attr('opacity', 0.15);
+
+        // PERPETUAL LOOP — orb climbs and resets
+        function climbLoop() {
+            let chain = orb;
+            let chainGlow = orbGlow;
+            steps.forEach((s, i) => {
+                const x = 40 + i * stepW + (stepW-8)/2;
+                const y = baseY - (30 + i * 30) - 14;
+                chain = chain.transition().duration(600).delay(i === 0 ? 0 : 200).attr('cx', x).attr('cy', y);
+                chainGlow = chainGlow.transition().duration(600).delay(i === 0 ? 0 : 200).attr('cx', x).attr('cy', y);
+            });
+            chain.transition().duration(300).attr('opacity', 0.3)
+                .transition().duration(200)
+                .attr('cx', 40 + stepW/2).attr('cy', baseY - 30 - 14).attr('opacity', 1)
+                .on('end', climbLoop);
+            chainGlow.transition().duration(300).attr('opacity', 0)
+                .transition().duration(200)
+                .attr('cx', 40 + stepW/2).attr('cy', baseY - 30 - 14).attr('opacity', 0.15);
+        }
+        setTimeout(climbLoop, 1500);
+    }
+
+    // ========== SLIDE 6: FLUXO RAG — Particle traveling ==========
+    function animFluxoRAG() {
+        const stage = document.getElementById('fluxo-rag-stage');
+        const w = stage.offsetWidth, h = stage.offsetHeight;
+        const svg = d3.select(stage).append('svg').attr('width', w).attr('height', h);
+        const primary = getComputedStyle(document.documentElement).getPropertyValue('--mira-primary').trim();
+        const accent2 = getComputedStyle(document.documentElement).getPropertyValue('--mira-accent-2').trim();
+        const textSoft = 'rgba(255,255,255,0.7)';
+
+        const stages = ['Pergunta','Embedding','Busca Vetorial','Top-K Trechos','Resposta'];
+        const padding = 50;
+        const gap = (w - padding * 2) / (stages.length - 1);
+
+        // Arrows
+        for (let i = 0; i < stages.length - 1; i++) {
+            svg.append('line')
+                .attr('x1', padding + i*gap + 12).attr('y1', h/2)
+                .attr('x2', padding + (i+1)*gap - 12).attr('y2', h/2)
+                .attr('stroke', primary).attr('stroke-width', 1.5).attr('opacity', 0)
+                .attr('marker-end','url(#arrow-rag)')
+                .transition().duration(400).delay(i*200).attr('opacity', 0.3);
+        }
+
+        // Arrow marker
+        const defs = svg.append('defs');
+        defs.append('marker').attr('id','arrow-rag').attr('viewBox','0 0 10 10')
+            .attr('refX',10).attr('refY',5).attr('markerWidth',6).attr('markerHeight',6)
+            .attr('orient','auto').append('path').attr('d','M 0 0 L 10 5 L 0 10 z').attr('fill', primary);
+
+        // Nodes
+        const nodes = svg.selectAll('.rag-node').data(stages).enter().append('g')
+            .attr('transform', (d,i) => `translate(${padding + i*gap}, ${h/2})`).attr('opacity', 0);
+        nodes.append('circle').attr('r', 10).attr('fill', primary).attr('opacity', 0.2);
+        nodes.append('circle').attr('r', 5).attr('fill', primary).attr('opacity', 0.8);
+        nodes.append('text').text(d => d).attr('y', 26).attr('text-anchor','middle')
+            .attr('fill', textSoft).attr('font-size','9px').attr('font-family','Inter');
+
+        // ENTRANCE
+        nodes.transition().duration(400).delay((d,i) => i*200).attr('opacity', 1);
+
+        // Traveler
+        const traveler = svg.append('circle').attr('r', 5).attr('fill', accent2)
+            .attr('cx', padding).attr('cy', h/2).attr('opacity', 0);
+        traveler.transition().delay(1200).duration(300).attr('opacity', 1);
+
+        // PERPETUAL LOOP
+        function loopRAG() {
+            traveler.attr('cx', padding)
+                .transition().duration(3500).ease(d3.easeLinear)
+                .attr('cx', padding + (stages.length-1)*gap)
+                .transition().duration(400).attr('opacity', 0.2)
+                .transition().duration(200).attr('cx', padding).attr('opacity', 1)
+                .on('end', loopRAG);
+        }
+        setTimeout(loopRAG, 1600);
+    }
+
+    // ========== SLIDE 7: ORBITAL RAG — Satellites orbiting ==========
+    function animOrbitalRAG() {
+        const stage = document.getElementById('orbital-rag-stage');
+        const w = stage.offsetWidth, h = stage.offsetHeight;
+        const svg = d3.select(stage).append('svg').attr('width', w).attr('height', h);
+        const primary = getComputedStyle(document.documentElement).getPropertyValue('--mira-primary').trim();
+        const accent2 = getComputedStyle(document.documentElement).getPropertyValue('--mira-accent-2').trim();
+        const textSoft = 'rgba(255,255,255,0.7)';
+        const cx = w/2, cy = h/2;
+
+        const satellites = ['Chunking','Embeddings','Banco Vetorial','Retriever','Reranker'];
+        const orbitR = Math.min(w, h) * 0.32;
+
+        // Core
+        svg.append('circle').attr('cx',cx).attr('cy',cy).attr('r', 28).attr('fill', primary).attr('opacity', 0);
+        svg.append('text').text('RAG').attr('x',cx).attr('y',cy+5).attr('text-anchor','middle')
+            .attr('fill','white').attr('font-size','12px').attr('font-weight','700').attr('font-family','Inter').attr('opacity',0);
+
+        // Orbit path
+        svg.append('circle').attr('cx',cx).attr('cy',cy).attr('r', orbitR)
+            .attr('fill','none').attr('stroke', primary).attr('stroke-width', 0.5).attr('stroke-dasharray','4 8').attr('opacity', 0);
+
+        // Satellite groups
+        const satGroups = svg.selectAll('.sat-rag').data(satellites).enter().append('g').attr('opacity', 0);
+        satGroups.append('circle').attr('r', 8).attr('fill', accent2).attr('opacity', 0.7);
+        satGroups.append('text').text(d => d).attr('y', 20).attr('text-anchor','middle')
+            .attr('fill', textSoft).attr('font-size','8px').attr('font-family','Inter');
+
+        // ENTRANCE
+        svg.select('circle').transition().duration(600).attr('opacity', 0.3);
+        svg.selectAll('text').filter(function() { return d3.select(this).text() === 'RAG'; })
+            .transition().duration(600).delay(200).attr('opacity', 1);
+        svg.selectAll('circle').filter(function(d,i) { return i === 2; })
+            .transition().duration(600).delay(300).attr('opacity', 0.15);
+        satGroups.transition().duration(500).delay((d,i) => 500 + i * 120).attr('opacity', 1);
+
+        // PERPETUAL LOOP
+        let angle = 0;
+        function orbitLoop() {
+            angle += 0.008;
+            satGroups.attr('transform', (d, i) => {
+                const a = angle + (i / satellites.length) * Math.PI * 2;
+                const x = cx + Math.cos(a) * orbitR;
+                const y = cy + Math.sin(a) * orbitR * 0.6;
+                return `translate(${x}, ${y})`;
+            });
+            // Core pulse
+            const pulse = 0.25 + 0.08 * Math.sin(angle * 4);
+            svg.select('circle').attr('opacity', pulse);
+            requestAnimationFrame(orbitLoop);
+        }
+        setTimeout(orbitLoop, 1200);
+    }
+
+    // ========== SLIDE 8: ESCADA GUARDRAILS — Orb climbing ==========
+    function animEscadaGuard() {
+        const stage = document.getElementById('escada-guard-stage');
+        const w = stage.offsetWidth, h = stage.offsetHeight;
+        const svg = d3.select(stage).append('svg').attr('width', w).attr('height', h);
+        const primary = getComputedStyle(document.documentElement).getPropertyValue('--mira-primary').trim();
+        const accent2 = getComputedStyle(document.documentElement).getPropertyValue('--mira-accent-2').trim();
+        const textSoft = 'rgba(255,255,255,0.7)';
+
+        const steps = ['Input Rails','Output Rails','Topical Rails','Factual Rails'];
+        const stepW = (w - 80) / steps.length;
+        const baseY = h - 40;
+
+        steps.forEach((s, i) => {
+            const x = 40 + i * stepW;
+            const stepH = 35 + i * 38;
+            const y = baseY - stepH;
+            svg.append('rect').attr('x', x).attr('y', y).attr('width', stepW - 8).attr('height', stepH)
+                .attr('fill', primary).attr('opacity', 0).attr('rx', 4)
+                .transition().duration(400).delay(i * 150).attr('opacity', 0.1 + i * 0.05);
+            svg.append('text').text(s).attr('x', x + (stepW-8)/2).attr('y', y - 8)
+                .attr('text-anchor','middle').attr('fill', textSoft).attr('font-size','10px')
+                .attr('font-family','Inter').attr('opacity', 0)
+                .transition().duration(400).delay(i * 150 + 100).attr('opacity', 1);
+        });
+
+        const orb = svg.append('circle').attr('r', 7).attr('fill', accent2).attr('opacity', 0)
+            .attr('cx', 40 + stepW/2).attr('cy', baseY - 35 - 14);
+        orb.transition().delay(700).duration(400).attr('opacity', 1);
+
+        // PERPETUAL LOOP
+        function climbLoop() {
+            let chain = orb;
+            steps.forEach((s, i) => {
+                const x = 40 + i * stepW + (stepW-8)/2;
+                const y = baseY - (35 + i * 38) - 14;
+                chain = chain.transition().duration(700).delay(i === 0 ? 0 : 250).attr('cx', x).attr('cy', y);
+            });
+            chain.transition().duration(300).attr('opacity', 0.3)
+                .transition().duration(200)
+                .attr('cx', 40 + stepW/2).attr('cy', baseY - 35 - 14).attr('opacity', 1)
+                .on('end', climbLoop);
+        }
+        setTimeout(climbLoop, 1300);
+    }
+
+    // ========== SLIDE 9: VERSUS TOOLS — Spotlight alternating ==========
+    function animVersusTools() {
+        const stage = document.getElementById('versus-tools-stage');
+        const w = stage.offsetWidth, h = stage.offsetHeight;
+        const svg = d3.select(stage).append('svg').attr('width', w).attr('height', h);
+        const primary = getComputedStyle(document.documentElement).getPropertyValue('--mira-primary').trim();
+        const accent2 = getComputedStyle(document.documentElement).getPropertyValue('--mira-accent-2').trim();
+
+        // Chat bubble left
+        const bubbleL = svg.append('rect').attr('x', w*0.15).attr('y', h*0.25).attr('width', 80).attr('height', 50)
+            .attr('rx', 12).attr('fill', primary).attr('opacity', 0);
+        svg.append('text').text('💬').attr('x', w*0.15+40).attr('y', h*0.25+32)
+            .attr('text-anchor','middle').attr('font-size','20px').attr('opacity', 0).attr('class','vt-emoji-l');
+
+        // Action bolt right
+        const boltR = svg.append('rect').attr('x', w*0.6).attr('y', h*0.25).attr('width', 80).attr('height', 50)
+            .attr('rx', 12).attr('fill', accent2).attr('opacity', 0);
+        svg.append('text').text('⚡').attr('x', w*0.6+40).attr('y', h*0.25+32)
+            .attr('text-anchor','middle').attr('font-size','20px').attr('opacity', 0).attr('class','vt-emoji-r');
+
+        // Connecting arrow
+        const arrow = svg.append('line').attr('x1', w*0.15+85).attr('y1', h/2)
+            .attr('x2', w*0.6-5).attr('y2', h/2)
+            .attr('stroke','rgba(255,255,255,0.2)').attr('stroke-width', 1.5)
+            .attr('stroke-dasharray','6 4').attr('opacity', 0);
+
+        // Pulse dot on arrow
+        const pulseDot = svg.append('circle').attr('r', 4).attr('fill', primary)
+            .attr('cx', w*0.15+85).attr('cy', h/2).attr('opacity', 0);
+
+        // ENTRANCE
+        bubbleL.transition().duration(500).attr('opacity', 0.2);
+        boltR.transition().duration(500).delay(200).attr('opacity', 0.2);
+        svg.select('.vt-emoji-l').transition().duration(400).delay(400).attr('opacity', 1);
+        svg.select('.vt-emoji-r').transition().duration(400).delay(600).attr('opacity', 1);
+        arrow.transition().duration(500).delay(700).attr('opacity', 1);
+        pulseDot.transition().delay(900).duration(300).attr('opacity', 1);
+
+        // PERPETUAL LOOP — alternating spotlight + pulse traveling
+        function loopTools() {
+            // Highlight left
+            bubbleL.transition().duration(800).attr('opacity', 0.35);
+            boltR.transition().duration(800).attr('opacity', 0.1);
+            pulseDot.attr('cx', w*0.15+85)
+                .transition().duration(1600).ease(d3.easeLinear).attr('cx', w*0.6-5);
+
+            setTimeout(() => {
+                // Highlight right
+                boltR.transition().duration(800).attr('opacity', 0.35);
+                bubbleL.transition().duration(800).attr('opacity', 0.1);
+                pulseDot.attr('cx', w*0.6-5)
+                    .transition().duration(1600).ease(d3.easeLinear).attr('cx', w*0.15+85);
+                setTimeout(loopTools, 1800);
+            }, 1800);
+        }
+        setTimeout(loopTools, 1200);
+    }
+
+    // ========== SLIDE 10: ORBITAL HARNESS ==========
+    function animOrbitalHarness() {
+        const stage = document.getElementById('orbital-harness-stage');
+        const w = stage.offsetWidth, h = stage.offsetHeight;
+        const svg = d3.select(stage).append('svg').attr('width', w).attr('height', h);
+        const primary = getComputedStyle(document.documentElement).getPropertyValue('--mira-primary').trim();
+        const accent2 = getComputedStyle(document.documentElement).getPropertyValue('--mira-accent-2').trim();
+        const textSoft = 'rgba(255,255,255,0.7)';
+        const cx = w/2, cy = h/2;
+
+        const satellites = ['RAG','Tools','Guardrails','Observabilidade','Avaliação','Auth','Fallback'];
+        const orbitR = Math.min(w, h) * 0.34;
+
+        // Core
+        svg.append('circle').attr('cx',cx).attr('cy',cy).attr('r', 24).attr('fill', primary).attr('opacity', 0);
+        svg.append('text').text('LLM').attr('x',cx).attr('y',cy+4).attr('text-anchor','middle')
+            .attr('fill','white').attr('font-size','11px').attr('font-weight','700').attr('font-family','Inter').attr('opacity',0);
+
+        // Orbit ring
+        svg.append('circle').attr('cx',cx).attr('cy',cy).attr('r', orbitR)
+            .attr('fill','none').attr('stroke', primary).attr('stroke-width', 0.5).attr('stroke-dasharray','3 6').attr('opacity', 0);
+
+        // Satellites
+        const satGroups = svg.selectAll('.sat-harness').data(satellites).enter().append('g').attr('opacity', 0);
+        satGroups.append('circle').attr('r', 6).attr('fill', (d,i) => i % 2 === 0 ? accent2 : primary).attr('opacity', 0.8);
+        satGroups.append('text').text(d => d).attr('y', 18).attr('text-anchor','middle')
+            .attr('fill', textSoft).attr('font-size','8px').attr('font-family','Inter');
+
+        // ENTRANCE
+        svg.selectAll('circle').filter(function(d,i) { return i === 0; })
+            .transition().duration(600).attr('opacity', 0.3);
+        svg.selectAll('text').filter(function() { return d3.select(this).text() === 'LLM'; })
+            .transition().duration(600).delay(200).attr('opacity', 1);
+        svg.selectAll('circle').filter(function(d,i) { return i === 2; })
+            .transition().duration(600).delay(300).attr('opacity', 0.15);
+        satGroups.transition().duration(400).delay((d,i) => 500 + i * 100).attr('opacity', 1);
+
+        // PERPETUAL LOOP
+        let angle = 0;
+        function orbitLoop() {
+            angle += 0.006;
+            satGroups.attr('transform', (d, i) => {
+                const a = angle + (i / satellites.length) * Math.PI * 2;
+                const x = cx + Math.cos(a) * orbitR;
+                const y = cy + Math.sin(a) * orbitR * 0.55;
+                return `translate(${x}, ${y})`;
+            });
+            const pulse = 0.25 + 0.1 * Math.sin(angle * 5);
+            svg.select('circle').attr('opacity', pulse);
+            requestAnimationFrame(orbitLoop);
+        }
+        setTimeout(orbitLoop, 1400);
+    }
+
+    // ========== SLIDE 11: METRICS OBSERVABILIDADE — Counter + rings ==========
+    function animMetricsObs() {
+        const stage = document.getElementById('metrics-obs-stage');
+        const w = stage.offsetWidth, h = stage.offsetHeight;
+        const svg = d3.select(stage).append('svg').attr('width', w).attr('height', h);
+        const primary = getComputedStyle(document.documentElement).getPropertyValue('--mira-primary').trim();
+        const cx = w/2, cy = h/2;
+
+        // Three concentric arcs representing data flow
+        const arcs = [
+            {r: 40, startAngle: 0, endAngle: Math.PI * 1.5},
+            {r: 55, startAngle: Math.PI * 0.5, endAngle: Math.PI * 2},
+            {r: 70, startAngle: Math.PI, endAngle: Math.PI * 2.5}
+        ];
+
+        const arcGen = d3.arc().innerRadius(d => d.r - 2).outerRadius(d => d.r + 2);
+
+        arcs.forEach((a, i) => {
+            svg.append('path')
+                .attr('d', arcGen({...a, startAngle: a.startAngle, endAngle: a.startAngle}))
+                .attr('transform', `translate(${cx},${cy})`)
+                .attr('fill', primary).attr('opacity', 0.2 + i * 0.1)
+                .transition().duration(800).delay(i * 200)
+                .attrTween('d', function() {
+                    const interp = d3.interpolate(a.startAngle, a.endAngle);
+                    return function(t) {
+                        return arcGen({...a, startAngle: a.startAngle, endAngle: interp(t)});
+                    };
+                });
+        });
+
+        // Center icon
+        svg.append('text').text('👁').attr('x', cx).attr('y', cy + 6).attr('text-anchor','middle')
+            .attr('font-size','20px').attr('opacity', 0)
+            .transition().delay(600).duration(400).attr('opacity', 1);
+
+        // Animate counter values
+        const vals = document.querySelectorAll('.metrics-obs-val');
+        vals.forEach((el, i) => {
+            const display = el.dataset.display;
+            setTimeout(() => { el.textContent = display; }, 800 + i * 300);
+        });
+
+        // PERPETUAL LOOP — rotating arcs
+        let angle = 0;
+        function loopArcs() {
+            angle += 0.4;
+            svg.selectAll('path').attr('transform', function(d, i) {
+                const dir = i % 2 === 0 ? 1 : -1;
+                return `translate(${cx},${cy}) rotate(${angle * dir * (0.8 + i * 0.2)})`;
+            });
+            requestAnimationFrame(loopArcs);
+        }
+        setTimeout(loopArcs, 1200);
+    }
+
+    // ========== SLIDE 12: FLUXO REACT — Particle traveling ==========
+    function animFluxoReact() {
+        const stage = document.getElementById('fluxo-react-stage');
+        const w = stage.offsetWidth, h = stage.offsetHeight;
+        const svg = d3.select(stage).append('svg').attr('width', w).attr('height', h);
+        const primary = getComputedStyle(document.documentElement).getPropertyValue('--mira-primary').trim();
+        const accent2 = getComputedStyle(document.documentElement).getPropertyValue('--mira-accent-2').trim();
+        const textSoft = 'rgba(255,255,255,0.7)';
+
+        const stages = ['Observe','Think','Act','Resultado'];
+        const padding = 60;
+        const gap = (w - padding * 2) / (stages.length - 1);
+        const cy = h / 2;
+
+        // Circular arrows to show iteration
+        const pathData = `M ${padding},${cy} C ${padding + gap*0.5},${cy - 50} ${padding + gap*1.5},${cy - 50} ${padding + gap*2},${cy}`;
+        svg.append('path').attr('d', pathData).attr('fill','none')
+            .attr('stroke', primary).attr('stroke-width', 1).attr('stroke-dasharray','4 4').attr('opacity', 0)
+            .transition().duration(800).attr('opacity', 0.2);
+
+        // Nodes
+        const nodes = svg.selectAll('.react-node').data(stages).enter().append('g')
+            .attr('transform', (d,i) => `translate(${padding + i*gap}, ${cy})`).attr('opacity', 0);
+        nodes.append('circle').attr('r', 14).attr('fill', primary).attr('opacity', 0.15);
+        nodes.append('circle').attr('r', 6).attr('fill', primary);
+        nodes.append('text').text(d => d).attr('y', 30).attr('text-anchor','middle')
+            .attr('fill', textSoft).attr('font-size','10px').attr('font-family','Inter');
+
+        // Connecting lines
+        for (let i = 0; i < stages.length - 1; i++) {
+            svg.append('line')
+                .attr('x1', padding + i*gap + 16).attr('y1', cy)
+                .attr('x2', padding + (i+1)*gap - 16).attr('y2', cy)
+                .attr('stroke', primary).attr('stroke-width', 1).attr('opacity', 0)
+                .transition().duration(300).delay(600 + i*150).attr('opacity', 0.3);
+        }
+
+        // ENTRANCE
+        nodes.transition().duration(500).delay((d,i) => i*200).attr('opacity', 1);
+
+        // Traveler
+        const traveler = svg.append('circle').attr('r', 5).attr('fill', accent2)
+            .attr('cx', padding).attr('cy', cy).attr('opacity', 0);
+        traveler.transition().delay(1200).duration(300).attr('opacity', 1);
+
+        // PERPETUAL LOOP
+        function loopReact() {
+            let chain = traveler.attr('cx', padding);
+            stages.forEach((s, i) => {
+                chain = chain.transition().duration(700).attr('cx', padding + i*gap);
+            });
+            // Loop back indicator
+            chain.transition().duration(500).attr('opacity', 0.3).attr('cx', padding + gap*2)
+                .transition().duration(400).attr('cx', padding).attr('opacity', 1)
+                .on('end', loopReact);
+        }
+        setTimeout(loopReact, 1600);
+    }
+
+    // ========== SLIDE 13: ESCADA MATURIDADE — Orb climbing ==========
+    function animEscadaMaturity() {
+        const stage = document.getElementById('escada-maturity-stage');
+        const w = stage.offsetWidth, h = stage.offsetHeight;
+        const svg = d3.select(stage).append('svg').attr('width', w).attr('height', h);
+        const primary = getComputedStyle(document.documentElement).getPropertyValue('--mira-primary').trim();
+        const accent2 = getComputedStyle(document.documentElement).getPropertyValue('--mira-accent-2').trim();
+        const textSoft = 'rgba(255,255,255,0.7)';
+
+        const steps = ['Experimentação','Pilotos','Integrado','Plataforma','Agentic'];
+        const stepW = (w - 80) / steps.length;
+        const baseY = h - 35;
+
+        steps.forEach((s, i) => {
+            const x = 40 + i * stepW;
+            const stepH = 28 + i * 32;
+            const y = baseY - stepH;
+            svg.append('rect').attr('x', x).attr('y', y).attr('width', stepW - 8).attr('height', stepH)
+                .attr('fill', primary).attr('opacity', 0).attr('rx', 4)
+                .transition().duration(400).delay(i * 150).attr('opacity', 0.08 + i * 0.04);
+            svg.append('text').text(s).attr('x', x + (stepW-8)/2).attr('y', y - 8)
+                .attr('text-anchor','middle').attr('fill', textSoft).attr('font-size','9px')
+                .attr('font-family','Inter').attr('opacity', 0)
+                .transition().duration(400).delay(i * 150 + 100).attr('opacity', 1);
+        });
+
+        const orb = svg.append('circle').attr('r', 7).attr('fill', accent2).attr('opacity', 0)
+            .attr('cx', 40 + stepW/2).attr('cy', baseY - 28 - 14);
+        orb.transition().delay(800).duration(400).attr('opacity', 1);
+
+        // PERPETUAL LOOP
+        function climbLoop() {
+            let chain = orb;
+            steps.forEach((s, i) => {
+                const x = 40 + i * stepW + (stepW-8)/2;
+                const y = baseY - (28 + i * 32) - 14;
+                chain = chain.transition().duration(600).delay(i === 0 ? 0 : 200).attr('cx', x).attr('cy', y);
+            });
+            chain.transition().duration(300).attr('opacity', 0.3)
+                .transition().duration(200)
+                .attr('cx', 40 + stepW/2).attr('cy', baseY - 28 - 14).attr('opacity', 1)
+                .on('end', climbLoop);
+        }
+        setTimeout(climbLoop, 1400);
+    }
+
+    // ========== SLIDE 14: ENCERRAMENTO — Breathing gradient glow ==========
+    function animEncerramento() {
+        const stage = document.getElementById('encerramento-stage');
+        const w = stage.offsetWidth, h = stage.offsetHeight;
+        const svg = d3.select(stage).append('svg').attr('width', w).attr('height', h);
+        const primary = getComputedStyle(document.documentElement).getPropertyValue('--mira-primary').trim();
+        const accent2 = getComputedStyle(document.documentElement).getPropertyValue('--mira-accent-2').trim();
+        const cx = w/2, cy = h/2;
+
+        // Radial gradient
+        const defs = svg.append('defs');
+        const grad = defs.append('radialGradient').attr('id','enc-glow');
+        grad.append('stop').attr('offset','0%').attr('stop-color', primary).attr('stop-opacity', 0.4);
+        grad.append('stop').attr('offset','50%').attr('stop-color', accent2).attr('stop-opacity', 0.1);
+        grad.append('stop').attr('offset','100%').attr('stop-color', primary).attr('stop-opacity', 0);
+
+        const glow = svg.append('circle').attr('cx', cx).attr('cy', cy).attr('r', 60)
+            .attr('fill', 'url(#enc-glow)').attr('opacity', 0);
+
+        // Small orbiting particles
+        const particles = d3.range(12).map(i => ({
+            angle: (i/12) * Math.PI * 2,
+            r: 70 + Math.random() * 20,
+            speed: 0.008 + Math.random() * 0.005,
+            size: 2 + Math.random() * 2
+        }));
+
+        const dots = svg.selectAll('.enc-dot').data(particles).enter()
+            .append('circle').attr('r', d => d.size).attr('fill', primary).attr('opacity', 0);
+
+        // ENTRANCE
+        glow.transition().duration(1000).attr('opacity', 1).attr('r', 80);
+        dots.transition().duration(600).delay((d,i) => 600 + i * 80).attr('opacity', 0.5);
+
+        // PERPETUAL LOOP — breathing glow + orbiting particles
+        let time = 0;
+        function loopEnc() {
+            time += 1;
+            const breathe = 70 + 15 * Math.sin(time * 0.02);
+            const breatheOpacity = 0.7 + 0.3 * Math.sin(time * 0.02);
+            glow.attr('r', breathe).attr('opacity', breatheOpacity);
+
+            dots.attr('cx', d => cx + Math.cos(d.angle + time * d.speed) * d.r)
+                .attr('cy', d => cy + Math.sin(d.angle + time * d.speed) * d.r * 0.7)
+                .attr('opacity', d => 0.3 + 0.3 * Math.sin(time * d.speed * 3));
+
+            requestAnimationFrame(loopEnc);
+        }
+        setTimeout(loopEnc, 1200);
+    }
+
+    // ========== INIT ==========
+    document.addEventListener('DOMContentLoaded', () => {
+        AOS.init({ duration: 600, once: true });
+        lucide.createIcons();
+        initSlideAnimation(0);
+        document.getElementById('mira-progress').style.width = (1/totalSlides*100) + '%';
+    });
+    </script>
+</body>
+</html>

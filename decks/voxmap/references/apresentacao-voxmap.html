@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOXMAP — Cockpit de Segurança Inteligente</title>
+    <style>
+        :root {
+            --bg: #0a0e1a;
+            --card-bg: #0f172a;
+            --accent: #22d3ee;
+            --text: #f1f5f9;
+            --text-dim: #94a3b8;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+        }
+        .slides-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            padding: 4rem;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+        .slide.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        h1 { font-size: 3.5rem; color: var(--accent); margin-bottom: 1rem; line-height: 1.1; font-weight: 800; letter-spacing: 2px; }
+        h2 { font-size: 2.2rem; margin-bottom: 1.5rem; font-weight: 700; }
+        p { font-size: 1.4rem; color: var(--text-dim); max-width: 900px; margin-bottom: 2rem; }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 2rem;
+            align-items: center;
+            text-align: left;
+            width: 100%;
+            max-width: 1300px;
+        }
+        .image-container img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            border: 1px solid rgba(34, 211, 238, 0.3);
+            object-fit: contain;
+            max-height: 65vh;
+        }
+        .features {
+            list-style: none;
+        }
+        .features li {
+            font-size: 1.2rem;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            line-height: 1.5;
+        }
+        .features li::before {
+            content: "✓";
+            color: var(--accent);
+            font-weight: bold;
+            flex-shrink: 0;
+            margin-top: 0.2rem;
+        }
+
+        .nav-buttons {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            gap: 1rem;
+            z-index: 100;
+        }
+        button {
+            background: var(--card-bg);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 0.7rem 1.4rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+        button:hover {
+            background: var(--accent);
+            color: var(--bg);
+        }
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: var(--accent);
+            transition: width 0.3s;
+        }
+        .tag {
+            background: rgba(34, 211, 238, 0.1);
+            color: var(--accent);
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progress"></div>
+    <div class="slides-container">
+        <!-- Slide 0: Capa de Impacto VOXMAP -->
+        <div class="slide active">
+            <div style="text-align: center; animation: slideUp 1s ease-out;">
+                <h1 style="font-size: 6rem; letter-spacing: 12px; margin-bottom: 0.5rem; text-shadow: 0 0 30px rgba(34, 211, 238, 0.4);">VOXMAP</h1>
+                <div style="width: 100px; height: 4px; background: var(--accent); margin: 2rem auto; border-radius: 2px;"></div>
+                <h2 style="font-size: 2rem; color: var(--text); font-weight: 300; letter-spacing: 4px; text-transform: uppercase;">Inteligência • Localização • Ação</h2>
+                <p style="margin: 2rem auto; font-style: italic; opacity: 0.8;">O futuro da Segurança Pública em tempo real.</p>
+            </div>
+            <style>
+                @keyframes slideUp {
+                    from { opacity: 0; transform: translateY(40px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+            </style>
+        </div>
+
+        <!-- Slide 1: Visão Geral -->
+        <div class="slide">
+            <span class="tag">SEGURANÇA INTELIGENTE</span>
+            <h1>VOXMAP</h1>
+            <h2>Cockpit de Gestão e Triagem</h2>
+            <p>Acelerando a resposta a emergências com inteligência artificial e geolocalização em tempo real.</p>
+            <div class="image-container" style="max-width: 800px;">
+                <img src="../img/chamada.png">
+            </div>
+        </div>
+
+        <!-- Slide 2: Triagem Inteligente -->
+        <div class="slide">
+            <div class="content-grid">
+                <div class="image-container">
+                    <img src="../img/chamada1.png">
+                </div>
+                <div>
+                    <span class="tag">TRIAGEM AVANÇADA</span>
+                    <h2>Inteligência na Escuta</h2>
+                    <ul class="features">
+                        <li><strong>Análise de Urgência:</strong> Classificação automática por tom e conteúdo.</li>
+                        <li><strong>Filtro Anti-Trote:</strong> Score de confiança baseado em dados históricos e áudio.</li>
+                        <li><strong>Apoio à Decisão:</strong> Protocolos inteligentes sugeridos ao operador.</li>
+                        <li><strong>Eficiência Operacional:</strong> Redução drástica no tempo de retenção em linha.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Ação Geográfica -->
+        <div class="slide">
+            <div class="content-grid">
+                <div>
+                    <span class="tag">DESPACHO INTELIGENTE</span>
+                    <h2>Geolocalização e Despacho</h2>
+                    <ul class="features">
+                        <li><strong>Localização Precisa:</strong> Integração com serviços de GPS móvel.</li>
+                        <li><strong>Visão de Frota em Tempo Real:</strong> Rastreamento completo de viaturas.</li>
+                        <li><strong>Gestão de Ocorrências:</strong> Visualização intuitiva no mapa para decisões rápidas.</li>
+                        <li><strong>Segurança AML:</strong> Dados de localização enviados automaticamente no chamado.</li>
+                    </ul>
+                </div>
+                <div class="image-container">
+                    <img src="../img/image (5).png">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Jornada de Coação -->
+        <div class="slide">
+            <div class="content-grid">
+                <div class="image-container">
+                    <img src="../img/coacao.png">
+                </div>
+                <div>
+                    <span class="tag">COGNIÇÃO HUMANA</span>
+                    <h2>Jornada de Coação</h2>
+                    <p style="font-size: 1.1rem; text-align: left; margin-bottom: 1rem;">Onde a tecnologia encontra a sensibilidade humana para salvar vidas.</p>
+                    <ul class="features">
+                        <li><strong>Detecção de Coação:</strong> Identificação de padrões de voz em pedidos de ajuda disfarçados.</li>
+                        <li><strong>Foco em Violência Doméstica:</strong> Suporte analítico enquanto o atendente foca na estratégia de acolhimento.</li>
+                        <li><strong>Sensibilidade Agêntica:</strong> A IA alerta para o "não dito" e sons ambientais críticos.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Tecnologia de Voz -->
+        <div class="slide">
+            <div class="content-grid">
+                <div>
+                    <span class="tag">VOICE TECH</span>
+                    <h2>Tecnologia de Voz Avançada</h2>
+                    <ul class="features">
+                        <li><strong>Biometria de Voz:</strong> Identificação única de quem fala, combatendo trotes e fraudes.</li>
+                        <li><strong>Marca d'água Digital:</strong> Garante a integridade e autenticidade da prova em áudio.</li>
+                        <li><strong>Deepfake Protection:</strong> Blindagem contra manipulações sonoras artificiais.</li>
+                        <li><strong>Forense de Áudio:</strong> Ferramentas completas para auditoria jurídica.</li>
+                    </ul>
+                </div>
+                <div class="image-container">
+                    <img src="../img/voz.png">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Encerramento -->
+        <div class="slide">
+            <span class="tag">CONTATO</span>
+            <h1>O Futuro é VOXMAP</h1>
+            <p>Transforme sua central de atendimento em uma unidade de inteligência tática.</p>
+            <div style="margin-top: 2rem;">
+                <button onclick="currentSlide=0; showSlide(0)">Recomeçar Pitch</button>
+                <button>Agendar Demonstração</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-buttons">
+        <button onclick="changeSlide(-1)">Anterior</button>
+        <button onclick="changeSlide(1)">Próximo</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const progress = document.getElementById('progress');
+
+        function showSlide(index) {
+            slides.forEach(s => s.classList.remove('active'));
+            slides[index].classList.add('active');
+            progress.style.width = ((index + 1) / slides.length * 100) + '%';
+        }
+
+        function changeSlide(n) {
+            currentSlide += n;
+            if (currentSlide >= slides.length) currentSlide = slides.length - 1;
+            if (currentSlide < 0) currentSlide = 0;
+            showSlide(currentSlide);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') changeSlide(1);
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+        });
+    </script>
+</body>
+</html>

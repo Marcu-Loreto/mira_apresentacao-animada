@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Letramento Executivo em IA Generativa</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          "Segoe UI",
+          system-ui,
+          -apple-system,
+          sans-serif;
+        background: #0a0e1a;
+        color: #f1f5f9;
+        overflow: hidden;
+        height: 100vh;
+      }
+      .slide {
+        display: none;
+        width: 100vw;
+        height: 100vh;
+        padding: 60px 80px;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .slide.active {
+        display: flex;
+      }
+      .slide h1 {
+        font-size: 2.8rem;
+        font-weight: 700;
+        color: #22d3ee;
+        margin-bottom: 12px;
+        line-height: 1.2;
+      }
+      .slide h2 {
+        font-size: 1.6rem;
+        font-weight: 400;
+        color: #94a3b8;
+        margin-bottom: 40px;
+      }
+      .slide ul {
+        list-style: none;
+        padding: 0;
+      }
+      .slide ul li {
+        font-size: 1.4rem;
+        line-height: 1.8;
+        padding-left: 28px;
+        position: relative;
+        margin-bottom: 12px;
+        color: #e2e8f0;
+      }
+      .slide ul li::before {
+        content: "▸";
+        position: absolute;
+        left: 0;
+        color: #22d3ee;
+      }
+      .slide .highlight {
+        background: linear-gradient(135deg, #1e293b, #0f172a);
+        border-left: 4px solid #22d3ee;
+        padding: 24px 32px;
+        border-radius: 8px;
+        margin: 24px 0;
+        font-size: 1.3rem;
+        font-style: italic;
+        color: #cbd5e1;
+      }
+      .slide .tag {
+        display: inline-block;
+        background: rgba(34, 211, 238, 0.15);
+        color: #22d3ee;
+        padding: 4px 14px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .slide-cover {
+        text-align: center;
+        justify-content: center;
+        align-items: center;
+      }
+      .slide-cover h1 {
+        font-size: 3.4rem;
+        margin-bottom: 16px;
+      }
+      .slide-cover h2 {
+        font-size: 1.8rem;
+        color: #94a3b8;
+        margin-bottom: 8px;
+      }
+      .slide-cover .subtitle {
+        font-size: 1.1rem;
+        color: #64748b;
+        margin-top: 24px;
+      }
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+        margin-top: 20px;
+      }
+      .grid-2 .card {
+        background: #1e293b;
+        border-radius: 12px;
+        padding: 24px;
+        border: 1px solid #334155;
+      }
+      .grid-2 .card h3 {
+        color: #22d3ee;
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+      }
+      .grid-2 .card p {
+        color: #94a3b8;
+        font-size: 1rem;
+        line-height: 1.5;
+      }
+      .timeline {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-top: 20px;
+      }
+      .timeline .item {
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 10px;
+        padding: 14px 20px;
+        min-width: 140px;
+        text-align: center;
+      }
+      .timeline .item .year {
+        color: #22d3ee;
+        font-weight: 700;
+        font-size: 1rem;
+        margin-bottom: 4px;
+      }
+      .timeline .item .desc {
+        color: #94a3b8;
+        font-size: 0.9rem;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      table th,
+      table td {
+        padding: 14px 18px;
+        text-align: left;
+        border-bottom: 1px solid #334155;
+        font-size: 1.1rem;
+      }
+      table th {
+        color: #22d3ee;
+        font-weight: 600;
+        background: #1e293b;
+      }
+      table td {
+        color: #cbd5e1;
+      }
+      .nav {
+        position: fixed;
+        bottom: 30px;
+        right: 40px;
+        display: flex;
+        gap: 12px;
+        z-index: 100;
+      }
+      .nav button {
+        background: #1e293b;
+        border: 1px solid #334155;
+        color: #22d3ee;
+        padding: 12px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.2s;
+      }
+      .nav button:hover {
+        background: #334155;
+      }
+      .counter {
+        position: fixed;
+        bottom: 36px;
+        left: 40px;
+        color: #475569;
+        font-size: 0.9rem;
+      }
+      .notes {
+        position: fixed;
+        top: 0;
+        right: -400px;
+        width: 400px;
+        height: 100vh;
+        background: #1e293b;
+        border-left: 1px solid #334155;
+        padding: 40px 24px;
+        overflow-y: auto;
+        transition: right 0.3s ease;
+        z-index: 200;
+      }
+      .notes.open {
+        right: 0;
+      }
+      .notes h3 {
+        color: #22d3ee;
+        margin-bottom: 16px;
+        font-size: 1rem;
+      }
+      .notes p {
+        color: #94a3b8;
+        font-size: 0.95rem;
+        line-height: 1.7;
+      }
+      .notes-toggle {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #1e293b;
+        border: 1px solid #334155;
+        color: #64748b;
+        padding: 8px 14px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        z-index: 201;
+      }
+      .notes-toggle:hover {
+        color: #22d3ee;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Slide 1: Capa -->
+    <div
+      class="slide slide-cover active"
+      data-notes="Abrir com energia e objetivo claro. Este deck foi criado para dar repertório e vocabulário executivo sobre IA generativa. Não é um curso técnico — é uma ferramenta de alinhamento para líderes que precisam conversar com clientes e times técnicos com mais segurança."
+    >
+      <span class="tag">Capacitação Executiva</span>
+      <h1>Letramento Executivo<br />em IA Generativa</h1>
+      <h2>Do Transformer aos Agentes — uma jornada prática para C-Levels</h2>
+      <p class="subtitle">
+        Vocabulário, repertório e clareza para decisões sobre IA
+      </p>
+    </div>
+
+    <!-- Slide 2: Por que IA generativa importa -->
+    <div
+      class="slide"
+      data-notes="Destaque que IA generativa não é apenas chatbot. O valor está em geração de linguagem, recuperação de conhecimento, automação de tarefas e apoio à decisão. Cite que o risco é tratar como mágica — sem arquitetura de controle, modelos podem errar, alucinar e vazar dados."
+    >
+      <span class="tag">Contexto</span>
+      <h1>Por que IA Generativa importa para negócios?</h1>
+      <h2>Uma mudança de paradigma, não apenas um chatbot</h2>
+      <ul>
+        <li>
+          Sistemas que produzem linguagem, código, análises e planos — não
+          apenas classificam
+        </li>
+        <li>
+          Valor real: recuperação de conhecimento, automação de tarefas,
+          personalização, copilotos
+        </li>
+        <li>
+          Redução de custo operacional em atendimento, documentação e análise
+        </li>
+        <li>
+          Risco: tratar IA como mágica sem governança gera alucinações e
+          exposição de dados
+        </li>
+      </ul>
+      <div class="highlight">
+        O valor não está em "ter um chatbot". Está em resolver problemas reais
+        com geração de linguagem, conhecimento e ação controlada.
+      </div>
+    </div>
+
+    <!-- Slide 3: Linha do tempo -->
+    <div
+      class="slide"
+      data-notes="Use esta timeline para mostrar que IA generativa não surgiu do nada — é uma evolução de quase 10 anos. Reforce que cada etapa adicionou uma capacidade: escala, instrução, conversação, ferramentas, multimodalidade e agentes. O ponto de virada comercial foi 2022 com o ChatGPT."
+    >
+      <span class="tag">Evolução</span>
+      <h1>Linha do Tempo da IA Generativa</h1>
+      <h2>Do artigo acadêmico à revolução corporativa</h2>
+      <div class="timeline">
+        <div class="item">
+          <div class="year">2017</div>
+          <div class="desc">Transformer</div>
+        </div>
+        <div class="item">
+          <div class="year">2018</div>
+          <div class="desc">GPT-1 / BERT</div>
+        </div>
+        <div class="item">
+          <div class="year">2019</div>
+          <div class="desc">GPT-2</div>
+        </div>
+        <div class="item">
+          <div class="year">2020</div>
+          <div class="desc">GPT-3 + RAG</div>
+        </div>
+        <div class="item">
+          <div class="year">2022</div>
+          <div class="desc">ChatGPT</div>
+        </div>
+        <div class="item">
+          <div class="year">2023</div>
+          <div class="desc">GPT-4 + Tools</div>
+        </div>
+        <div class="item">
+          <div class="year">2024</div>
+          <div class="desc">Multimodal</div>
+        </div>
+        <div class="item">
+          <div class="year">2025+</div>
+          <div class="desc">Agentes</div>
+        </div>
+      </div>
+      <div class="highlight">
+        Cada geração adicionou uma capacidade: escala → instrução → conversação
+        → ferramentas → multimodalidade → autonomia controlada.
+      </div>
+    </div>
+
+    <!-- Slide 4: O que é um LLM -->
+    <div
+      class="slide"
+      data-notes="Desmistifique o LLM. Não é uma base de dados. Não é inteligência humana. É um motor de linguagem que reconhece padrões e gera texto. Ele fala bem, mas pode não falar a verdade da empresa. Precisa de fontes, controles e validação. Analogia: profissional que leu uma biblioteca gigantesca, mas não conhece os processos internos da sua empresa."
+    >
+      <span class="tag">Conceito-chave</span>
+      <h1>O que é um LLM?</h1>
+      <h2>Motor de linguagem, não base de conhecimento corporativo</h2>
+      <ul>
+        <li>
+          Grande Modelo de Linguagem — treinado em volumes massivos de texto
+        </li>
+        <li>Reconhece padrões e gera respostas em linguagem natural</li>
+        <li>
+          Não "sabe" como uma pessoa — calcula probabilidades de continuação
+        </li>
+        <li>
+          Sozinho, não conhece dados internos, políticas nem processos da
+          empresa
+        </li>
+        <li>
+          Precisa de fontes confiáveis, controles e governança para uso
+          corporativo
+        </li>
+      </ul>
+      <div class="highlight">
+        Um LLM é como um profissional que leu uma biblioteca gigantesca, mas não
+        conhece automaticamente os processos internos da sua empresa.
+      </div>
+    </div>
+
+    <!-- Slide 5: Tokens, custo e janela de contexto -->
+    <div
+      class="slide"
+      data-notes="Tokens são a unidade econômica da IA. Impactam custo, limite e desempenho. Janela de contexto é a 'mesa de trabalho' do modelo — tudo que não cabe na mesa não é considerado. Faça a analogia com minutos de telefonia ou GB de nuvem. Pergunte: qual o custo por interação? Há roteamento para modelos mais baratos?"
+    >
+      <span class="tag">Economia</span>
+      <h1>Tokens, Custo e Janela de Contexto</h1>
+      <h2>Por que impactam uso, limite e cobrança</h2>
+      <ul>
+        <li>Tokens = pedacinhos de texto que o modelo lê e escreve</li>
+        <li>Custo = cobrado por volume de tokens de entrada + saída</li>
+        <li>
+          Janela de contexto = "mesa de trabalho" — limite de informação por
+          interação
+        </li>
+        <li>Mais texto ≠ melhor resposta. Foco em relevância, não volume</li>
+      </ul>
+      <div class="grid-2">
+        <div class="card">
+          <h3>💰 Impacto no custo</h3>
+          <p>
+            Agentes com múltiplas etapas podem consumir 10x mais tokens que uma
+            pergunta simples
+          </p>
+        </div>
+        <div class="card">
+          <h3>📏 Impacto na qualidade</h3>
+          <p>
+            Contexto demais gera confusão, custo e latência. O objetivo é enviar
+            o que é relevante
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 6: Prompt -->
+    <div
+      class="slide"
+      data-notes="Prompt é o briefing para o modelo. Assim como um briefing ruim gera entrega ruim numa agência, um prompt mal feito gera resposta vaga. Componentes: papel, tarefa, contexto, critérios, formato e limites. Reforce: prompt bom ajuda, mas não resolve tudo. Não confundir prompt com arquitetura (RAG, ferramentas, guardrails)."
+    >
+      <span class="tag">Instrução</span>
+      <h1>Prompt: como instruir melhor a IA</h1>
+      <h2>Briefing claro = resposta melhor</h2>
+      <ul>
+        <li>Prompt = instrução enviada ao modelo (como um briefing)</li>
+        <li>
+          Componentes: papel, tarefa, contexto, critérios, formato e limites
+        </li>
+        <li>
+          Prompt bom ajuda, mas não substitui RAG, ferramentas e governança
+        </li>
+        <li>Prompts críticos devem ser documentados, versionados e testados</li>
+      </ul>
+      <div class="grid-2">
+        <div class="card">
+          <h3>❌ Prompt fraco</h3>
+          <p>"Analise isso."</p>
+        </div>
+        <div class="card">
+          <h3>✅ Prompt eficaz</h3>
+          <p>
+            "Atue como diretor de riscos. Liste os 5 principais riscos,
+            classifique severidade e proponha mitigação."
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 7: RAG -->
+    <div
+      class="slide"
+      data-notes="RAG é o bloco mais importante para uso corporativo. Use a frase-chave do briefing. Explique o fluxo: pergunta → busca em base → trechos relevantes → modelo gera resposta fundamentada. Sem RAG, o modelo responde 'de memória'. Com RAG, consulta fontes da empresa. Reforce: RAG reduz alucinação, mas não elimina."
+    >
+      <span class="tag">Conhecimento</span>
+      <h1>RAG: conectando o modelo às fontes da empresa</h1>
+      <h2>Retrieval-Augmented Generation</h2>
+      <ul>
+        <li>
+          Antes de responder, o sistema busca trechos relevantes na base
+          corporativa
+        </li>
+        <li>Reduz alucinação ao fundamentar respostas em documentos reais</li>
+        <li>Permite rastreabilidade: "de onde veio essa resposta?"</li>
+        <li>
+          Exige curadoria — documentos desatualizados geram respostas erradas
+        </li>
+      </ul>
+      <div class="highlight">
+        "Um LLM sem RAG é como um atendente inteligente sem acesso ao manual da
+        empresa."
+      </div>
+    </div>
+
+    <!-- Slide 8: Blocos do RAG -->
+    <div
+      class="slide"
+      data-notes="Detalhe cada bloco de forma simples. Documentos = biblioteca. Chunks = páginas relevantes. Embeddings = coordenadas de significado para busca inteligente. Busca semântica = encontrar por sentido, não por palavra exata. Contexto = o que entra na 'mesa'. Resposta = gerada pelo LLM com base nos trechos. Mostre que é uma cadeia — se um bloco falha, a resposta falha."
+    >
+      <span class="tag">Arquitetura</span>
+      <h1>Blocos do RAG</h1>
+      <h2>Cada peça tem uma função na cadeia de conhecimento</h2>
+      <table>
+        <tr>
+          <th>Bloco</th>
+          <th>Função</th>
+          <th>Analogia</th>
+        </tr>
+        <tr>
+          <td>Documentos</td>
+          <td>Fontes de conhecimento</td>
+          <td>Biblioteca</td>
+        </tr>
+        <tr>
+          <td>Chunks</td>
+          <td>Trechos menores para busca</td>
+          <td>Páginas relevantes</td>
+        </tr>
+        <tr>
+          <td>Embeddings</td>
+          <td>Significado em formato numérico</td>
+          <td>Coordenadas de sentido</td>
+        </tr>
+        <tr>
+          <td>Busca semântica</td>
+          <td>Encontrar por significado</td>
+          <td>Busca inteligente</td>
+        </tr>
+        <tr>
+          <td>Contexto</td>
+          <td>Trechos enviados ao modelo</td>
+          <td>Briefing com evidências</td>
+        </tr>
+        <tr>
+          <td>Resposta</td>
+          <td>Gerada pelo LLM com base nos trechos</td>
+          <td>Parecer fundamentado</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Slide 9: Guardrails -->
+    <div
+      class="slide"
+      data-notes="Guardrails são os controles de segurança. Analogia: faixas de segurança na estrada. Não dirigem, mas evitam que o carro saia da pista. Tipos: entrada (bloquear prompts maliciosos), saída (impedir vazamento), conteúdo (filtrar ofensivo), negócio (limitar escopo), compliance (regulação). Reforce: necessários em TODA solução corporativa."
+    >
+      <span class="tag">Segurança</span>
+      <h1>Guardrails: segurança e limites</h1>
+      <h2>Controles que mantêm a IA dentro das regras</h2>
+      <ul>
+        <li>Validam entradas, controlam saídas, bloqueiam usos indevidos</li>
+        <li>
+          Protegem contra prompt injection, vazamento de dados e respostas
+          inadequadas
+        </li>
+        <li>Garantem compliance, encaminham para humano quando necessário</li>
+        <li>
+          Reduzem risco, mas não eliminam — exigem testes e monitoramento
+          contínuo
+        </li>
+      </ul>
+      <div class="grid-2">
+        <div class="card">
+          <h3>🛡️ Entrada</h3>
+          <p>Bloquear tentativas de manipulação e injeção de prompt</p>
+        </div>
+        <div class="card">
+          <h3>🔒 Saída</h3>
+          <p>Impedir vazamento de dados sensíveis e respostas fora de escopo</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 10: Harness -->
+    <div
+      class="slide"
+      data-notes="Harness é o conceito mais importante para evitar a armadilha de achar que 'comprar um modelo = ter solução'. O produto de IA é o conjunto: modelo + RAG + prompts + ferramentas + guardrails + avaliação + integração + logs + fallback. Analogia: o modelo é o motor, o harness é o carro completo. Sem harness, é apenas uma demonstração."
+    >
+      <span class="tag">Produto</span>
+      <h1>Harness: o produto é mais que o modelo</h1>
+      <h2>O que transforma uma demo em solução empresarial</h2>
+      <ul>
+        <li>
+          Modelo é o motor. Harness é o carro completo: volante, freio, painel,
+          sensores
+        </li>
+        <li>
+          Inclui: RAG, prompts, ferramentas, guardrails, logs, avaliação,
+          integrações
+        </li>
+        <li>
+          Sem harness, a IA é apenas uma demonstração — não uma solução de
+          negócio
+        </li>
+        <li>"Comprar um modelo" ≠ "ter uma solução de IA corporativa"</li>
+      </ul>
+      <div class="highlight">
+        O LLM é apenas uma parte. O harness é o que conecta o modelo ao processo
+        de negócio, às fontes de conhecimento, à segurança e aos mecanismos de
+        avaliação.
+      </div>
+    </div>
+
+    <!-- Slide 11: Agentes e Agentic AI -->
+    <div
+      class="slide"
+      data-notes="Mostre a escala evolutiva: chatbot conversa → assistente ajuda → copiloto trabalha junto → agente planeja e executa → sistema agentic coordena múltiplos agentes. Agentes usam ferramentas e executam tarefas com autonomia controlada. Quanto mais autonomia, mais governança é necessária. Exemplo: agente de compras que verifica política, compara fornecedores e solicita aprovação."
+    >
+      <span class="tag">Evolução</span>
+      <h1>Agentes e Agentic AI</h1>
+      <h2>De chatbot para sistemas que executam tarefas</h2>
+      <table>
+        <tr>
+          <th>Nível</th>
+          <th>O que faz</th>
+          <th>Exemplo</th>
+        </tr>
+        <tr>
+          <td>Chatbot</td>
+          <td>Conversa e responde</td>
+          <td>FAQ inteligente</td>
+        </tr>
+        <tr>
+          <td>Assistente</td>
+          <td>Ajuda em tarefas</td>
+          <td>Resumir contrato</td>
+        </tr>
+        <tr>
+          <td>Agente</td>
+          <td>Planeja e executa etapas</td>
+          <td>Abrir ticket + escalar</td>
+        </tr>
+        <tr>
+          <td>Agentic</td>
+          <td>Coordena múltiplos agentes</td>
+          <td>Pipeline de compras</td>
+        </tr>
+      </table>
+      <div class="highlight">
+        Quanto mais autonomia a IA tem, maior a necessidade de governança,
+        auditoria e supervisão humana.
+      </div>
+    </div>
+
+    <!-- Slide 12: Perguntas antes de aprovar -->
+    <div
+      class="slide"
+      data-notes="Este é o slide de ação. Cada C-Level deve sair com essas perguntas prontas para usar em reuniões com fornecedores e times técnicos. Se a proposta não responde a essas perguntas com clareza, há risco. Reforce: a maturidade executiva está em saber perguntar, não em saber configurar."
+    >
+      <span class="tag">Ação</span>
+      <h1>Perguntas antes de aprovar um projeto de IA</h1>
+      <h2>O checklist executivo para decisões seguras</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>🎯 Negócio</h3>
+          <p>
+            Qual problema resolve? Qual métrica comprova valor? O processo será
+            redesenhado?
+          </p>
+        </div>
+        <div class="card">
+          <h3>📊 Dados</h3>
+          <p>
+            Quais dados serão usados? São confiáveis? Há informação sensível?
+            Quem é dono?
+          </p>
+        </div>
+        <div class="card">
+          <h3>🔐 Segurança</h3>
+          <p>
+            Há guardrails? Controle de acesso? Rastreabilidade? Revisão humana
+            em casos críticos?
+          </p>
+        </div>
+        <div class="card">
+          <h3>💰 Custo e Operação</h3>
+          <p>
+            Custo por interação? Quem monitora? Quem responde por erro? Métricas
+            de sucesso?
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navegação -->
+    <div class="nav">
+      <button onclick="prevSlide()">← Anterior</button>
+      <button onclick="nextSlide()">Próximo →</button>
+    </div>
+    <div class="counter">
+      <span id="current">1</span> / <span id="total">12</span>
+    </div>
+    <button class="notes-toggle" onclick="toggleNotes()">📝 Notas</button>
+    <div class="notes" id="notesPanel">
+      <h3>Notas do Apresentador</h3>
+      <p id="notesContent"></p>
+    </div>
+
+    <script>
+      let currentSlide = 0;
+      const slides = document.querySelectorAll(".slide");
+      const total = slides.length;
+      document.getElementById("total").textContent = total;
+
+      function showSlide(n) {
+        slides[currentSlide].classList.remove("active");
+        currentSlide = (n + total) % total;
+        slides[currentSlide].classList.add("active");
+        document.getElementById("current").textContent = currentSlide + 1;
+        document.getElementById("notesContent").textContent =
+          slides[currentSlide].getAttribute("data-notes") ||
+          "Sem notas para este slide.";
+      }
+
+      function nextSlide() {
+        showSlide(currentSlide + 1);
+      }
+      function prevSlide() {
+        showSlide(currentSlide - 1);
+      }
+
+      function toggleNotes() {
+        document.getElementById("notesPanel").classList.toggle("open");
+      }
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight" || e.key === " ") {
+          e.preventDefault();
+          nextSlide();
+        }
+        if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          prevSlide();
+        }
+        if (e.key === "n" || e.key === "N") {
+          toggleNotes();
+        }
+      });
+
+      // Initialize notes
+      document.getElementById("notesContent").textContent =
+        slides[0].getAttribute("data-notes") || "";
+    </script>
+  </body>
+</html>

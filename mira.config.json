@@ -1,0 +1,24 @@
+{
+  "sources": [],
+  "decks": [
+    {
+      "name": "voxmap",
+      "template": "demo-tecnica",
+      "theme": "mira-dark",
+      "createdAt": "2026-06-16T13:03:16.130Z"
+    },
+    {
+      "name": "ia-gen",
+      "template": "aula-capitulo",
+      "theme": "mira-dark",
+      "createdAt": "2026-06-22T17:31:05.861Z"
+    }
+  ],
+  "version": "0.1.19",
+  "projectName": "meus_slides",
+  "userName": "loreto",
+  "chatLanguage": "pt-br",
+  "defaultTheme": "mira-dark",
+  "installedAt": "2026-06-16T11:53:49.030Z",
+  "updatedAt": "2026-06-16T12:36:54.205Z"
+}
