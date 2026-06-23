@@ -12,6 +12,12 @@
       "template": "aula-capitulo",
       "theme": "mira-dark",
       "createdAt": "2026-06-22T17:31:05.861Z"
+    },
+    {
+      "name": "ia-gen-executivo",
+      "template": "aula-capitulo",
+      "theme": "mira-dark",
+      "createdAt": "2026-06-22T17:55:33.045Z"
     }
   ],
   "version": "0.1.19",
